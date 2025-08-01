@@ -20,7 +20,10 @@ using websocketpp::client;
 using websocketpp::connection_hdl;
 
 // Replace this ACCID value with your robot's actual serial number (SN)
-static const std::string ACCID = "WF_TRON1A_237";
+// 25.08.01 [BDS]
+// TODO : 재빌드 (개발가이드 참고)
+// static const std::string ACCID = "WF_TRON1A_237";
+static const std::string ACCID = "WF_TRON1A_282";
 
 // WebSocket client instance
 static client<websocketpp::config::asio> ws_client;

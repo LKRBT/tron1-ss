@@ -56,7 +56,9 @@
 
 	      <!-- 加载静态地图 -->
 	<arg name="2dmap" default="limx_map.yaml" />
-	<node name = "map_server" pkg = "map_server" type = "map_server" args="$(find fast_lio_localization_sc_qn)/2d_nav_map_dashahe/limx_map.yaml /map:=prior_map"/>
+	<!-- 25.08.01 [BDS] -->
+	<!-- <node name = "map_server" pkg = "map_server" type = "map_server" args="$(find fast_lio_localization_sc_qn)/2d_nav_map_dashahe/limx_map.yaml /map:=prior_map"/> -->
+	<node name = "map_server" pkg = "map_server" type = "map_server" args="$(find fast_lio_sam_sc_qn)/limx_map.yaml /map:=prior_map"/>
 
 	<!-- pointscloud2 to laserscans -->
 	<include file="$(find fast_lio_localization_sc_qn)/launch/PointsCloud2toLaserscan.launch">

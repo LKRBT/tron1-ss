@@ -55,7 +55,8 @@ fi
 pushd `pwd` > /dev/null
 if [ $ROS_VERSION = ${VERSION_ROS1} ]; then
     cd ../../
-    catkin_make_isolated -DROS_EDITION=${VERSION_ROS1} -DPYTHON_EXECUTABLE=/usr/bin/python3.9
+    #  25.08.01 [BDS]
+    catkin_make_isolated -DROS_EDITION=${VERSION_ROS1} -DPYTHON_EXECUTABLE=/usr/bin/python3.8
 elif [ $ROS_VERSION = ${VERSION_ROS2} ]; then
     cd ../../
     colcon build --cmake-args -DROS_EDITION=${VERSION_ROS2} -DHUMBLE_ROS=${ROS_HUMBLE}

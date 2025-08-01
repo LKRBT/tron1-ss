@@ -41,7 +41,9 @@ void Preprocess::set(bool feat_en, int lid_type, double bld, int pfilt_num)
   point_filter_num = pfilt_num;
 }
 
-void Preprocess::process(const livox_ros_driver::CustomMsg::ConstPtr &msg, PointCloudXYZI::Ptr &pcl_out)
+// 25.08.01 [BDS]
+// void Preprocess::process(const livox_ros_driver::CustomMsg::ConstPtr &msg, PointCloudXYZI::Ptr &pcl_out)
+void Preprocess::process(const livox_ros_driver2::CustomMsg::ConstPtr &msg, PointCloudXYZI::Ptr &pcl_out)
 {  
   // std::cout<<"jkjj"<<std::endl;
   avia_handler(msg);
@@ -86,7 +88,9 @@ void Preprocess::process(const sensor_msgs::PointCloud2::ConstPtr &msg, PointClo
   *pcl_out = pl_surf;
 }
 
-void Preprocess::avia_handler(const livox_ros_driver::CustomMsg::ConstPtr &msg)
+// 25.08.01 [BDS]
+// void Preprocess::avia_handler(const livox_ros_driver::CustomMsg::ConstPtr &msg)
+void Preprocess::avia_handler(const livox_ros_driver2::CustomMsg::ConstPtr &msg)
 {
   pl_surf.clear();
   pl_corn.clear();

@@ -11,13 +11,17 @@ keyframe:
 
 quatro_nano_gicp_voxel_resolution: 0.3        # voxel resolution to use Quatro and Nano-GICP matching
 save_voxel_resolution: 0.1                    # voxel resolution to save map in .pcd format
-scancontext_max_correspondence_distance: 35.0 # this is used for candidate trimming after ScanContext
+# 25.08.06 [featureless indoor environment]
+# scancontext_max_correspondence_distance: 35.0 # this is used for candidate trimming after ScanContext
+scancontext_max_correspondence_distance: 5.0 # this is used for candidate trimming after ScanContext
 
 nano_gicp:                                    # all values are from Nano-GICP official github (Direct LiDAR Odometry)
   thread_number: 0                            # if 0, max number of core
   icp_score_threshold: 1.5                    # lower is more accurate, for loop detection
   correspondences_number: 15
-  max_correspondence_distance: 35.0           # this is also used for candidate trimming after ScanContext
+  # 25.08.06 [featureless indoor environment]
+  # max_correspondence_distance: 35.0           # this is also used for candidate trimming after ScanContext
+  max_correspondence_distance: 5.0           # this is also used for candidate trimming after ScanContext
   max_iter: 32
   transformation_epsilon: 0.01
   euclidean_fitness_epsilon: 0.01
@@ -28,7 +32,9 @@ nano_gicp:                                    # all values are from Nano-GICP of
 quatro:                                       # all values are from Quatro official github
   enable: true                                # whether or not to use quatro, if false -> FAST-LIO-SAM-N (Nano-GICP only)
   optimize_matching: true                     # whether or not to use Optimized matching
-  distance_threshold: 35.0                    # when optimized matching, use only correspondences within this radius, unit [meter]
+  # 25.08.06 [featureless indoor environment]
+  # distance_threshold: 35.0                    # when optimized matching, use only correspondences within this radius, unit [meter]
+  distance_threshold: 5.0                    # when optimized matching, use only correspondences within this radius, unit [meter]
   max_correspondences: 500                    # max correspondences to use for optimized matching
   fpfh_normal_radius: 0.9                     # It should be 2.5 - 3.0 * `quatro_nano_gicp_voxel_resolution`
   fpfh_radius: 1.5                            # It should be 5.0 * `quatro_nano_gicp_voxel_resolution`

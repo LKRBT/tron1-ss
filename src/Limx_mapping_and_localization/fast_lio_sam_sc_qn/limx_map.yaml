@@ -1,0 +1,7 @@
+image: /workspaces/lk_tron/catkin_ws/src/tron1-ss/src/Limx_mapping_and_localization/fast_lio_sam_sc_qn/limx_map.pgm
+resolution: 0.050000
+origin: [-24.061470, -23.749153, 0.000000]
+negate: 0
+occupied_thresh: 0.65
+free_thresh: 0.196
+

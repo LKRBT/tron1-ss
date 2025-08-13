@@ -1,7 +1,8 @@
 basic:
   map_frame: "map"                            # publish frame
   loop_update_hz: 2.0                         # Loop detection Hz
-  vis_hz: 1.0                                 # visualize Hz
+  # vis_hz: 1.0                                 # visualize Hz
+  vis_hz: 10.0                                 # visualize Hz
 
 keyframe:
   keyframe_threshold: 0.75                     # unit [meter] every this distance, generate keyframe

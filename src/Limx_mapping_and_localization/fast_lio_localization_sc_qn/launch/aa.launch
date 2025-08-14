@@ -1,10 +1,13 @@
 <!-- -->
 <launch>
+<!-- 25.08.14 [BDS] -->
+<arg name="run_dir"      default="/mnt/ssd512/slam_datasets/20250814_164424"/>
+
 <node pkg="pcd2pgm" name="pcd2pgm" type="pcd2pgm" output="screen">
 <!-- 存放pcd文件的路径-->
-<!-- 25.08.01 [BDS] -->
-<!-- <param name="file_directory" value= "/home/limx/temp_ros1/src/fast-lio-mapping_and_localization-sc-qn/fast_lio_sam_sc_qn/" /> -->
-<param name="file_directory" value= "/workspaces/lk_tron/catkin_ws/src/tron1-ss/src/Limx_mapping_and_localization/fast_lio_sam_sc_qn/" />
+<!-- 25.08.14 [BDS] -->
+<param name="file_directory" value="$(arg run_dir)/"/>
+
 <!-- pcd文件名称-->
 <param name="file_name" value= "result" />
 <!-- 选取的范围　最小的高度-->

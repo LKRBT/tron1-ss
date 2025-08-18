@@ -1,9 +1,9 @@
 basic:
   map_frame: "map"                              # publish frame
   map_match_hz: 4.0                             # Map match Hz
-  # 25.08.01 [BDS]
+  # 25.08.18 [BDS]
   # saved_map: "/home/limx/temp_ros1/src/fast-lio-mapping_and_localization-sc-qn/fast_lio_sam_sc_qn/map/dashahe/result.bag"          # directory should be in absolute path
-  saved_map: "/workspaces/lk_tron/catkin_ws/src/tron1-ss/src/Limx_mapping_and_localization/fast_lio_sam_sc_qn/result.bag"          # directory should be in absolute path
+  saved_map: "/workspaces/lk_tron/catkin_ws/src/tron1-ss/src/Limx_mapping_and_localization/fast_lio_localization_sc_qn/result.bag"          # directory should be in absolute path
   visualize_voxel_size: 0.3                     # voxel size for visualization
 
 keyframe:

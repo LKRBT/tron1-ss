@@ -67,21 +67,48 @@ DWAPlannerROS:
   heading_scoring_timestep: 0.8
   occdist_scale: 1.5
 
-  acc_limit_trans: 10
-  acc_lim_x: 10.0                # 2.5
+  # 25.08.18 [BDS]
+  # acc_limit_trans: 10
+  acc_lim_trans: 1.5
+  
+  # 25.08.18 [BDS]
+  # acc_lim_x: 10.0                # 2.5
+  acc_lim_x: 1.5                # 2.5
+  
   acc_lim_y: 0.0                # 2.5
+  
+  # 25.08.18 [BDS]
   # acc_lim_theta: 1.0            # 3.2
+  acc_lim_theta: 0.7            # 3.2
 
-  max_vel_trans: 8
+  # 25.08.18 [BDS]
+  # max_vel_trans: 8
+  max_vel_trans: 1.0
+
   min_vel_trans: 0
-  max_vel_x: 10.0
-  min_vel_x: 0.2
+  
+  # 25.08.18 [BDS]
+  # max_vel_x: 10.0
+  max_vel_x: 1.0
+
+  # 25.08.18 [BDS]
+  # min_vel_x: 0.2
+  min_vel_x: 0.5
+  
   max_vel_y: 0
   min_vel_y: 0
-  max_vel_theta: 2.0
+
+  # 25.08.18 [BDS]
+  # max_vel_theta: 2.0
+  max_vel_theta: 0.5
+  
   min_vel_theta: 0.2
   escape_vel: -0.1
-  min_in_place_vel_theta: 0.5
+
+  # 25.08.18 [BDS]
+  # min_in_place_vel_theta: 0.5
+  min_in_place_vel_theta: 0.2
+
   # Other                       Defaults
   oscillation_reset_dist: 0.05  # 0.05
   # oscillation_reset_angle: 0.20 # 0.20

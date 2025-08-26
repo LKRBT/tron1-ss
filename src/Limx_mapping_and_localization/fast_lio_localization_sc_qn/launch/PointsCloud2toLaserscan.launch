@@ -1,13 +1,19 @@
 <launch>
-        <!-- run pointcloud_to_laserscan node -->
+    <!-- run pointcloud_to_laserscan node -->
     <node pkg="pointcloud_to_laserscan" type="pointcloud_to_laserscan_node" name="pointcloud_to_laserscan">
         <remap from="cloud_in" to="/livox/lidar_filter1"/>
         
         <rosparam>
    
             transform_tolerance: 0.01
-            min_height: -0.2
-            max_height: 1.5
+            <!-- 25.08.20 [BDS] -->
+            <!-- min_height: -0.2  -->
+            min_height: -1.0
+            
+            <!-- 25.08.20 [BDS] -->
+            <!-- max_height: 1.5 -->
+            <!-- max_height: 1.2 -->
+            max_height: 1.0
 
             angle_min: -3.14159 # -M_PI/2
             angle_max: 3.14159 # M_PI/2
@@ -25,5 +31,35 @@
       args="0 0 0.0 0 0 0 laser_frame livox_frame 100"/>
     <node pkg="tf" type="static_transform_publisher" name="base_link_to_laser"
       args="0 0 0.0 0 0 0 body laser_frame 100"/>  
+    <!-- 25.08.25 [BDS] -->
+    <!-- TODO : Realsense 설정 -->
+    <!-- run pointcloud_to_laserscan node -->
+    <!-- <node pkg="pointcloud_to_laserscan" type="pointcloud_to_laserscan_node" name="pointcloud_to_laserscan2">
+        <remap from="cloud_in" to="/camera/depth/color/points"/>
+        <remap from="scan" to="/scan_depth"/>
+
+        <rosparam>
+   
+            transform_tolerance: 0.1
+
+            min_height: -0.2
+            max_height: -0.1
+
+            angle_min: -0.61
+            angle_max: 0.61
+            angle_increment: 0.003 # M_PI/360.0
+
+            scan_time: 0.033
+
+            range_min: 0.5
+            range_max: 2.0
+
+            use_inf: true
+            inf_epsilon: 1.0
+            concurrency_level: 1
+
+            target_frame: camera_link
+        </rosparam>
+    </node> -->
 </launch>
 

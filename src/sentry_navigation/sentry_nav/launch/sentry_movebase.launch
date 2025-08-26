@@ -8,7 +8,8 @@
         <rosparam file="$(find sentry_nav)/param/global_costmap_params.yaml" command="load" />
         <rosparam file="$(find sentry_nav)/param/base_local_planner_params.yaml" command="load" />
         <rosparam file="$(find sentry_nav)/param/global_planner_params.yaml" command="load" />
-
+        <!-- 25.08.21 [BDS] -->
+        <rosparam file="$(find sentry_nav)/param/move_base_params.yaml" command="load" />
          
         <!-- <rosparam file="$(find sentry_nav)/new_param/costmap_common_params.yaml" command="load" ns="global_costmap" />
         <rosparam file="$(find sentry_nav)/new_param/costmap_common_params.yaml" command="load" ns="local_costmap" />

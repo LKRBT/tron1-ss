@@ -1,6 +1,6 @@
 global_costmap:
   global_frame: map #地图坐标系
-  robot_base_frame: body #机器人坐标系
+  robot_base_frame: body #机器人坐标系 # default : base_link
   # 以此实现坐标变换
  
   update_frequency: 5 #代价地图更新频率
@@ -9,4 +9,3 @@ global_costmap:
  
   static_map: true # 是否使用一个地图或者地图服务器来初始化全局代价地图，如果不使用静态地图，这个参数为false.
   map_type: costmap
-

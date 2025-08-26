@@ -12,3 +12,18 @@ GlobalPlanner:
   publish_potential: true #默认true，是否发布costmap的势函数
   orientation_mode: 0 #默认0，设置点的方向
   orientation_window_size: 1 #默认1，根据orientation_mode指定的位置积分确定窗口方向
+
+# GlobalPlanner:
+#   allow_unknown: false           # (기본값: true) 미지영역(NO_INFORMATION) 통과 허용 여부. false면 미지영역을 통과하지 않음.
+#   default_tolerance: 0.2         # (기본값: 0.0) 목표 지점이 장애물/불가영역이면 이 반경 내에서 가장 가까운 유효 지점을 목표로 대체.
+#   visualize_potential: false     # (기본값: false) 잠재함수(potential)를 PointCloud2로 RViz에 시각화할지 여부.
+#   use_dijkstra: true             # (기본값: true) true면 Dijkstra, false면 A* 사용.
+#   use_quadratic: true            # (기본값: true) 잠재함수 계산 시 2차 근사 사용(더 부드러운 비용 경사).
+#   use_grid_path: false           # (기본값: false) true면 격자 경계 따라 경로 생성(모서리 위주), false면 경사하강 기반으로 더 매끈한 경로.
+#   old_navfn_behavior: false      # (기본값: false) navfn의 옛 경로 스타일/행동을 최대한 모방.
+#   lethal_cost: 253               # (기본값: 253) 치명 영역 비용 상수. *일부 버전에서 off-by-one 이슈로 실제 적용이 -1 될 수 있음.*
+#   neutral_cost: 50               # (기본값: 50) 중성 비용(기준 오프셋).
+#   cost_factor: 3.0               # (기본값: 3.0) costmap 원시비용을 확대하는 스케일 계수.
+#   publish_potential: true        # (기본값: true) 잠재함수(costmap 기반)를 토픽으로 퍼블리시할지 여부.
+#   orientation_mode: 0            # (기본값: 0) 전역 경로 점(포즈)의 방향 설정 모드(0=None, 1=Forward, 2=Interpolate 등).
+#   orientation_window_size: 1     # (기본값: 1) orientation_mode에 사용하는 윈도우 크기.

@@ -1,0 +1,77 @@
+<launch>
+    <!-- run pointcloud_to_laserscan node -->
+    <node pkg="pointcloud_to_laserscan" type="pointcloud_to_laserscan_node" name="pointcloud_to_laserscan">
+        <remap from="cloud_in" to="/livox/lidar_filter1"/>
+        <remap from="scan" to="/scan_cloud"/>
+        <rosparam>
+            transform_tolerance: 0.01
+            <!-- 25.08.20 [BDS] -->
+            <!-- min_height: -0.2  -->
+            min_height: -1.0
+            
+            <!-- 25.08.20 [BDS] -->
+            <!-- max_height: 1.5 -->
+            <!-- max_height: 1.2 -->
+            max_height: 1.0
+
+            angle_min: -3.14159 # -M_PI/2
+            angle_max: 3.14159 # M_PI/2
+            angle_increment: 0.003 # M_PI/360.0
+            <!-- TODO -->
+            scan_time: 0.1
+            <!-- scan_time: 0.05 -->
+            range_min: 0.05
+            range_max: 10000000.0
+            use_inf: true
+            inf_epsilon: 1.0
+            
+            concurrency_level: 1
+        </rosparam>
+    </node>
+    <node pkg="tf" type="static_transform_publisher" name="livox_tf"
+      args="0 0 0.0 0 0 0 laser_frame livox_frame 100"/>
+    <node pkg="tf" type="static_transform_publisher" name="base_link_to_laser"
+      args="0 0 0.0 0 0 0 body laser_frame 100"/>  
+    <!-- 25.08.25 [BDS] -->
+    <!-- TODO : Realsense 설정 -->
+    <!-- run pointcloud_to_laserscan node -->
+    <node pkg="pointcloud_to_laserscan" type="pointcloud_to_laserscan_node" name="pointcloud_to_laserscan2">
+        <remap from="cloud_in" to="/camera/depth/color/points"/>
+        <remap from="scan" to="/scan_depth"/>
+        <rosparam>
+            <!-- 25.08.29 [BDS] -->
+            <!-- 수평 기준 프레임으로 설정 -->
+            target_frame: body
+
+            transform_tolerance: 0.1
+
+            <!-- min_height: -0.2 -->
+            min_height: -1.0
+            <!-- max_height: -0.1 -->
+            max_height: 1.0
+
+            <!-- 수평 FOV : 87° (43.5° = 0.76rad)-->
+            angle_min: -0.76
+            angle_max: 0.76
+
+            angle_increment: 0.003 # M_PI/360.0
+
+            scan_time: 0.1
+
+            <!-- 0.3 ~ 3m -->
+            <!-- range_min: 0.5 -->
+            range_min: 0.7
+            range_max: 3.0
+
+            use_inf: true
+            inf_epsilon: 1.0
+            concurrency_level: 1
+        </rosparam>
+    </node>
+    <!-- laser_filters -->
+    <!-- <node pkg="laser_filters" type="scan_to_scan_filter_chain" name="laser_filter" output="screen">
+        <param name="scan_topic" value="/scan_depth"/>
+        <param name="filtered_scan_topic" value="/scan_filtered"/>
+        <rosparam command="load" file="$(find robot-interface)/param/laser_filter.yaml" />
+    </node> -->
+</launch>

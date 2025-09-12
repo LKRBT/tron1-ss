@@ -1,0 +1,20 @@
+recovery_behavior_enabled: true
+recovery_behaviors:
+  - name: rotate_recovery
+    type: rotate_recovery/RotateRecovery
+
+# (1) rotate_recovery 자신이 읽는 파라미터는 ~/<name> 에서 읽힘
+rotate_recovery:
+  # TODO : recovery 진행할 때 튜닝
+  frequency: 10.0 # 20.0
+
+# (2) 아래 값은 ~/TrajectoryPlannerROS 에서만 읽힘
+# DWA 사용 시에도, namespace를 TrajectroyPlannerROS로 설정 필요
+# TrajectoryPlannerROS:
+  # TODO : recovery 진행할 때 튜닝
+  # acc_lim_th: 3.2
+  
+  # max_rotational_vel: 0.3 # 1.0
+  # min_in_place_rotational_vel: 0.3 # 0.4
+
+  # yaw_goal_tolerance: 0.1

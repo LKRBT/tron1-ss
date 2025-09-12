@@ -1,5 +1,3 @@
-# version : 3.0.24
-
 # TrajectoryPlannerROS:
 
 # # Robot Configuration Parameters
@@ -51,13 +49,12 @@ DWAPlannerROS:
   # Tolerances                  Defaults
   xy_goal_tolerance: 0.2 #default:0.1
   yaw_goal_tolerance: 0.2 #default:0.05
-  # TODO : 재확인 필요
-  # latch_xy_goal_tolerance: false # false
-  latch_xy_goal_tolerance: true # false
+  latch_xy_goal_tolerance: false # false
 
   # Forward simulation          Defaults
   use_dwa: true                 # true
   # sim_time: 3.0              # 1.7
+  # sim_time: 2.0              # 1.7
   sim_time: 1.0 # fix             # 1.7
   sim_granularity: 0.025       # 0.025
   angular_sim_granularity: 0.1 # 0.10 (1 degree = 0.017 rad)
@@ -65,15 +62,8 @@ DWAPlannerROS:
   vy_samples: 1               # 10
   vth_samples: 20               # 20
 
-  # trajectory scoring
-  # total_score = pdist_scale * path_distance + gdist_scale * goal_distance + occdist_scale * obstacle_cost
-
   pdist_scale: 0.1 # fix
-  # pdist_scale: 100
-  # TODO : 재확인 필요
   gdist_scale: 0.2 # fix
-  # gdist_scale: 100
-
 #   pdist_scale: 100
 #   gdist_scale: 0.4
   meter_scoring: true
@@ -82,57 +72,61 @@ DWAPlannerROS:
   heading_scoring: false
   heading_scoring_timestep: 0.8
 
-  occdist_scale: 1.5
-  # occdist_scale: 0.01
+###############################################
+  
+  # TODO : 장애물 회피에서 다시 테스트 필요
+  # occdist_scale: 1.5
+  occdist_scale: 0.01
 
 ###############################################
 
  # fix
 
-  # TODO : 5.0 ~ 7.0
   # acc_lim_trans: 10
   # acc_lim_trans: 8.0 # fix
-  acc_lim_trans: 5.0
+  acc_lim_trans: 7.0 # fix
   
-  # TODO : 5.0 ~ 7.0
+  # acc_lim_x: 10.0               # 2.5
   # acc_lim_x: 10.0               # 2.5
   # acc_lim_x: 8.0 # fix               # 2.5
-  acc_lim_x: 5.0               # 2.5
+  acc_lim_x: 7.0 # fix               # 2.5
 
   acc_lim_y: 0.0 # fix               # 2.5
   
   # acc_lim_theta: 3.2            # 3.2
   acc_lim_theta: 3.0 # fix
+  # acc_lim_theta: 5.0 # fix
 
   # max_vel_trans: 8
   # max_vel_trans: 0.8 # fix
-  max_vel_trans: 0.7
+  max_vel_trans: 1.0 
 
+  # min_vel_trans: 0 # fix
   min_vel_trans: 0 # fix
   
   # max_vel_x: 10.0
   # max_vel_x: 0.8 # fix
-  max_vel_x: 0.7
+  max_vel_x: 1.0
 
-  # TODO : -0.2 ~ 0.0
   # min_vel_x: 0.2
-  # min_vel_x: -0.2 # fix
-  # min_vel_x: -0.05
-  min_vel_x: 0.0
+  min_vel_x: -0.2 # fix
 
   max_vel_y: 0 # fix
   min_vel_y: 0 # fix
 
   # max_vel_theta: 2.0
-  max_vel_theta: 0.5 # fix
-  
-  # min_vel_theta: 0.3
-  min_vel_theta: 0.2 # fix
+  max_vel_theta: 1.5
+  # max_vel_theta: 0.5 # fix
+  # max_vel_theta: 1.0 # fix
 
-  # TODO : (확인) 적용되는 값 아닌 것 같음
-  escape_vel: -0.1
+  min_vel_theta: 0.3
+  # min_vel_theta: 0.5
+  # min_vel_theta: 0.2 # fix
 
-  # TODO : (확인) 적용되는 값 아닌 것 같음
+  # (확인) 적용되는 값 아닌 것 같음
+  escape_vel: -0.0
+
+  # (확인) 적용되는 값 아닌 것 같음
   min_in_place_vel_theta: 0.5
   # min_in_place_vel_theta: 0.3
 

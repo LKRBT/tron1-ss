@@ -7,8 +7,8 @@
         <rosparam file="$(find sentry_nav)/param/local_costmap_params.yaml" command="load" />
         <rosparam file="$(find sentry_nav)/param/global_costmap_params.yaml" command="load" />
         <rosparam file="$(find sentry_nav)/param/base_local_planner_params.yaml" command="load" />
+        <!-- <rosparam file="$(find sentry_nav)/new_param/base_local_planner_params.yaml" command="load" /> -->
         <rosparam file="$(find sentry_nav)/param/global_planner_params.yaml" command="load" />
-        <!-- 25.08.21 [BDS] -->
         <rosparam file="$(find sentry_nav)/param/move_base_params.yaml" command="load" />
          
         <!-- <rosparam file="$(find sentry_nav)/new_param/costmap_common_params.yaml" command="load" ns="global_costmap" />
@@ -25,8 +25,9 @@
     </node>
 
     <node pkg="sentry_nav" type="trans_tf_2d" name="trans_tF_2d" />
-    <!-- <node pkg="sentry_nav" type="trans_tf_2d_odom" name="trans_tF_2d_odom" />
-    <node pkg="sentry_nav" type="trans_odom_2d" name="trans_odom_2d" /> -->
+    <!-- 25.09.11 -->
+    <!-- <node pkg="sentry_nav" type="trans_tf_2d_odom" name="trans_tF_2d_odom" /> -->
+    <!-- <node pkg="sentry_nav" type="trans_odom_2d" name="trans_odom_2d" /> -->
 	<include file="$(find velocity_smoother_ema)/launch/velocity_smoother_ema.launch">
 	</include>
 </launch>

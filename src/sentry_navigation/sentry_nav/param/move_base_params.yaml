@@ -1,12 +1,31 @@
+# version : 3.0.24
+
 recovery_behavior_enabled: true
+# 25.09.12 [BDS]
+clearing_rotation_allowed: true
+
 recovery_behaviors:
+  # 25.09.12 [BDS]
+  # - name: aggressive_reset
+  #   type: clear_costmap_recovery/ClearCostmapRecovery
+
   - name: rotate_recovery
     type: rotate_recovery/RotateRecovery
+  
+# 25.09.12 [BDS]
+# aggressive_reset:
+#   reset_distance: 0.3
+#   layer_names: [obstacle_layer]
 
 # (1) rotate_recovery 자신이 읽는 파라미터는 ~/<name> 에서 읽힘
 rotate_recovery:
   # TODO : recovery 진행할 때 튜닝
   frequency: 10.0 # 20.0
+
+  # 25.09.12 [BDS]
+  reset_distance: 2.5      # ← RotateRecovery에는 효과 없음
+  layer_names: [voxel_layer]
+  # layer_names: [voxel_layer, obstacle_layer]
 
 # (2) 아래 값은 ~/TrajectoryPlannerROS 에서만 읽힘
 # DWA 사용 시에도, namespace를 TrajectroyPlannerROS로 설정 필요

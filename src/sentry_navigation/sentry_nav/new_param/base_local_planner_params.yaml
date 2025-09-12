@@ -3,20 +3,38 @@ recovery_behavior_enabled: true
 clearing_rotation_allowed: true
 
 TrajectoryPlannerROS:
+   # 25.09.11 [추가]
+   max_vel_trans: 1.5
+   min_vel_trans: 0.0
+
    max_vel_x: 2
-   min_vel_x: 0.05
+   # min_vel_x: 0.05
+   min_vel_x: 0.2
    max_vel_y: 0.0  # zero for a differential drive robot
    min_vel_y: 0.0
+
+   # 25.09.11 [추가]
+   max_vel_theta: 0.5
+   min_vel_theta: 0.1
+
    min_in_place_vel_theta: 0.5
    escape_vel: -0.1
+   
+   # 25.09.11 [추가]
+   acc_lim_trans: 2 # 0.1
+
    acc_lim_x: 2
    acc_lim_y: 0.0 # zero for a differential drive robot
-   acc_lim_theta: 0.5
+   # acc_lim_theta: 0.5
+   acc_lim_theta: 1.0
 
    holonomic_robot: false
-   yaw_goal_tolerance: 0.1 # about 6 degrees
-   xy_goal_tolerance: 0.1  # 10 cm
-   latch_xy_goal_tolerance: false
+   # yaw_goal_tolerance: 0.1 # about 6 degrees
+   yaw_goal_tolerance: 0.2 # about 6 degrees
+   # xy_goal_tolerance: 0.1  # 10 cm
+   xy_goal_tolerance: 0.2  # 10 cm
+   # latch_xy_goal_tolerance: false
+   latch_xy_goal_tolerance: true
    pdist_scale: 0.4
    gdist_scale: 0.8
 #   pdist_scale: 100
@@ -24,9 +42,11 @@ TrajectoryPlannerROS:
    meter_scoring: true
 
    heading_lookahead: 0.325
-   heading_scoring: true
+   # heading_scoring: true
+   heading_scoring: false
    heading_scoring_timestep: 0.8
-   occdist_scale: 0.5
+   # occdist_scale: 0.5
+   occdist_scale: 0.01
    oscillation_reset_dist: 0.05
    publish_cost_grid_pc: false
    prune_plan: true

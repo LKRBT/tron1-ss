@@ -21,6 +21,8 @@
 #include <tf/transform_broadcaster.h> // broadcaster
 #include <sensor_msgs/PointCloud2.h>
 #include <geometry_msgs/PoseStamped.h>
+// 25.09.19 [initialpose]
+#include <geometry_msgs/PoseWithCovarianceStamped.h> 
 #include <nav_msgs/Odometry.h>
 #include <nav_msgs/Path.h>
 #include <visualization_msgs/Marker.h>
@@ -80,6 +82,8 @@ private:
     ros::Publisher corrected_current_pcd_pub_, realtime_pose_pub_, map_match_pub_,pubMapOdom;
     ros::Publisher saved_map_pub_;
     ros::Publisher debug_src_pub_, debug_dst_pub_, debug_coarse_aligned_pub_, debug_fine_aligned_pub_;
+    // 25.09.19 [initialpose]
+    ros::Subscriber sub_initial_pose_;
     ros::Timer match_timer_;
     // odom, pcd sync subscriber
     std::shared_ptr<message_filters::Synchronizer<odom_pcd_sync_pol>> sub_odom_pcd_sync_ = nullptr;
@@ -125,6 +129,8 @@ private:
     void loadMap(const std::string &saved_map_path);
     // cb
     void odomPcdCallback(const nav_msgs::OdometryConstPtr &odom_msg, const sensor_msgs::PointCloud2ConstPtr &pcd_msg);
+    // 25.09.19 [initialpose]
+    void initialPoseCallback(const geometry_msgs::PoseWithCovarianceStampedConstPtr& msg);
     void matchingTimerFunc(const ros::TimerEvent &event);
 
     pcl::PointCloud<pcl::PointXYZI>::Ptr pose_cloud;

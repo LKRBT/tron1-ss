@@ -77,6 +77,8 @@ FastLioLocalizationScQn::FastLioLocalizationScQn(const ros::NodeHandle &n_privat
     sub_pcd_ = std::make_shared<message_filters::Subscriber<sensor_msgs::PointCloud2>>(nh_, "/cloud_registered", 10);
     sub_odom_pcd_sync_ = std::make_shared<message_filters::Synchronizer<odom_pcd_sync_pol>>(odom_pcd_sync_pol(10), *sub_odom_, *sub_pcd_);
     sub_odom_pcd_sync_->registerCallback(boost::bind(&FastLioLocalizationScQn::odomPcdCallback, this, _1, _2));
+    // 25.09.19 [initialpose]
+    sub_initial_pose_ = nh_.subscribe("/initialpose", 1, &FastLioLocalizationScQn::initialPoseCallback, this);
     // Timers at the end
     match_timer_ = nh_.createTimer(ros::Duration(1 / map_match_hz), &FastLioLocalizationScQn::matchingTimerFunc, this);
     pub_ = nh_.advertise<sensor_msgs::PointCloud2>("/livox/lidar_filter1", 1); 
@@ -95,12 +97,20 @@ void FastLioLocalizationScQn::odomPcdCallback(const nav_msgs::OdometryConstPtr &
 {
     PosePcd current_frame = PosePcd(*odom_msg, *pcd_msg, current_keyframe_idx_); // to be checked if keyframe or not
     //// 1. realtime pose = last TF * odom
+    // current_frame.pose_eig_ = odom_T_body1 (camera_init -> body1)
+    // last_corrected_TF_ : map_T_odom (map -> camera_init)
+    // current_frame.pose_corrected_eig_ = map_T_body1 (map -> camera_init -> body1)
+        // = last_corrected_TF_ * current_frame.pose_eig_
+    // last_corrected_TF_는 초기 위치 추정에서 최신화된 후에, 국소 탐색에서 정합된 결과를 이용하여 지속적으로 최신화된다.
     current_frame.pose_corrected_eig_ = last_corrected_TF_ * current_frame.pose_eig_;
+
+    // transform_base_pose : body_T_body1 (body -> body1)
+    // temp_pose_corrected_eig_ : map_T_body (map -> body)
+        // = body_T_body1 * map_T_body1 * (body_T_body1)^{-1}
     auto temp_pose_corrected_eig_ = transform_base_pose * current_frame.pose_corrected_eig_ * transform_base_pose.inverse();
     geometry_msgs::PoseStamped current_pose_stamped_ = poseEigToPoseStamped(temp_pose_corrected_eig_, map_frame_);
     
     realtime_pose_pub_.publish(current_pose_stamped_);
-    
 
     //if(first_relocation_success)
     {
@@ -127,9 +137,6 @@ void FastLioLocalizationScQn::odomPcdCallback(const nav_msgs::OdometryConstPtr &
         odomAftMapped.child_frame_id = "body";
         pubMapOdom.publish(odomAftMapped);
 
-
-
-        
         // 创建过滤后的点云
         pcl::PointCloud<pcl::PointXYZI>::Ptr cloud_ptr = current_frame.pcd_.makeShared();
 
@@ -140,12 +147,15 @@ void FastLioLocalizationScQn::odomPcdCallback(const nav_msgs::OdometryConstPtr &
         auto msg = pclToPclRos(transformPcd(*cloud_ptr, transform_base_pose), "body");
         msg.header.stamp = odom_msg->header.stamp;
         msg.header.frame_id ="body";
+        // TODO : 정확하게 체크
         pub_.publish(msg);
     }
     
+    // TODO : 정확하게 체크
     // pub current scan in corrected pose frame
     corrected_current_pcd_pub_.publish(pclToPclRos(transformPcd(current_frame.pcd_, transform_base_pose * current_frame.pose_corrected_eig_), map_frame_));
 
+    // 초기 위치를, 최신 keyframe에 등록한다.
     if (!is_initialized_) //// init only once
     {
         // 1. save first keyframe
@@ -161,6 +171,7 @@ void FastLioLocalizationScQn::odomPcdCallback(const nav_msgs::OdometryConstPtr &
         }
         is_initialized_ = true;
     }
+    // 0.4m 이동 후, keyframe을 최신화한다.
     else
     {
         //// 1. check if keyframe
@@ -182,6 +193,45 @@ void FastLioLocalizationScQn::odomPcdCallback(const nav_msgs::OdometryConstPtr &
     return;
 }
 
+// RViz 초기자세를 받아 초기 보정변환(last_corrected_TF_) 설정
+// /initialpose(=map 기준)와 현재 odom 기준 포즈를 이용해 last_corrected_TF_를 계산한다.
+void FastLioLocalizationScQn::initialPoseCallback(const geometry_msgs::PoseWithCovarianceStampedConstPtr& msg)
+{
+    // 1) map -> body (temp_pose_corrected_eig_)
+    Eigen::Matrix4d map_T_body = Eigen::Matrix4d::Identity();
+    Eigen::Quaterniond q(msg->pose.pose.orientation.w,
+                         msg->pose.pose.orientation.x,
+                         msg->pose.pose.orientation.y,
+                         msg->pose.pose.orientation.z);
+    Eigen::Matrix3d R = q.normalized().toRotationMatrix();
+    map_T_body.block<3,3>(0,0) = R;
+    map_T_body(0,3) = msg->pose.pose.position.x;
+    map_T_body(1,3) = msg->pose.pose.position.y;
+    // map_T_body(2,3) = msg->pose.pose.position.z;
+    map_T_body(2,3) = 0;
+
+    // 2) map -> body1 (current_frame.pose_corrected_eig_)
+        // = (body_T_body1)^{-1} * map_T_body * (body_T_body1)
+    Eigen::Matrix4d map_T_body1 = transform_base_pose.inverse() * map_T_body * transform_base_pose;
+
+    // 3) odom -> body1 (current_frame.pose_eig_)
+    PosePcd latest;
+    {
+        std::lock_guard<std::mutex> lock(keyframes_mutex_);
+        latest = last_keyframe_;
+    }
+    Eigen::Matrix4d odom_T_body1 = latest.pose_eig_; // odom 기준
+
+    // 4) last_corrected_TF_ : map_T_odom (map -> camera_init)
+    last_corrected_TF_ = map_T_body1 * odom_T_body1.inverse();
+
+    // 5) 국소 탐색으로 전환
+    relocate_success_flag = true;
+    first_relocation_success = true;
+
+    ROS_WARN("[InitPose] last_corrected_TF_ is set from /initialpose, local-tracking will start.");
+}
+
 void FastLioLocalizationScQn::matchingTimerFunc(const ros::TimerEvent &event)
 {
     if (!is_initialized_)
@@ -189,7 +239,7 @@ void FastLioLocalizationScQn::matchingTimerFunc(const ros::TimerEvent &event)
         return;
     }
 	
-	
+    // 사용하지않은 keyframe만 활용
     //// 1. copy not processed keyframes
     high_resolution_clock::time_point t1_ = high_resolution_clock::now();
     PosePcd last_keyframe_copy;
@@ -205,6 +255,11 @@ void FastLioLocalizationScQn::matchingTimerFunc(const ros::TimerEvent &event)
 
     static int count_failure = 0;
     RegistrationOutput reg_output;
+    // 초기 위치 추정을 수행하는 경우, 전역 탐색을 건너뛴다. 향후, 위치를 완전히 잃었을때 전역 탐색 수행
+    // [Scan Context based Global Relocalization]
+    // Scan Context 디스크립터를 활용한 전역 탐색 방식
+    // fast-lio-sam-sc-qn SLAM 알고리즘에서 생성된 result.bag 파일을 활용하여 전역 keyframe으로 활용
+    // 현재 keyframe과 전역 keyframe 중에서 가장 유사한 keyframe과 정합
     if(!first_relocation_success){
             //// 2. detect match and calculate TF
         // from last_keyframe_copy keyframe to map (saved keyframes) in threshold radius, get the closest keyframe
@@ -217,7 +272,9 @@ void FastLioLocalizationScQn::matchingTimerFunc(const ros::TimerEvent &event)
         reg_output = map_matcher_->performMapMatcher(last_keyframe_copy,
                                                     saved_map_from_bag_,
                                                    closest_keyframe_idx);
-            
+    // [Submap-Metric based Localization]
+    // Submap-Metric 정합으로 유클리디언 거리 최소화 국소 탐색 방식
+    // 현재 keyframe과 submap keyframe 중에서 최소 거리 keyframe과 정합
     }else{
         
         pcl::PointXYZI search_pt;
@@ -240,24 +297,25 @@ void FastLioLocalizationScQn::matchingTimerFunc(const ros::TimerEvent &event)
         //                                            *nearest_indices.begin());
         std::cerr<<"-------------------submap matches------------------"<<std::endl;
     }
-    
 
     //// 3. handle corrected results
+    // 정합이 유효한 경우 수행
     if (reg_output.is_valid_) // TF the pose with the result of match
     {
         count_failure = 0;
         ROS_INFO("\033[1;32mMap matching accepted. Score: %.3f\033[0m", reg_output.score_);
         
+        // 전역 탐색
         if(!first_relocation_success){
             tf_pose_vec.push_back(reg_output.pose_between_eig_.block<3,1>(0,3));
         
+            // 누적 2번 성공시, 전역 탐색 성공으로 간주하고, 국소 추적으로 넘어간다.
             if(tf_pose_vec.size() >= 2 ){
                 if( 0.2 > (tf_pose_vec[1] - tf_pose_vec[0]).norm()){
                     ROS_INFO("\033[loopclouse success]");
                     relocate_success_flag = true;
                     tf_pose_vec.clear();
                     tf_pose_vec.resize(0);
-                    
                 }else{
                     ROS_INFO("\033[reject loopclouse]");
                     std::cout<<"first = "<< tf_pose_vec[0]<<" second = "<<tf_pose_vec[1]<<std::endl;
@@ -268,6 +326,7 @@ void FastLioLocalizationScQn::matchingTimerFunc(const ros::TimerEvent &event)
         
         // if( reg_output.score_ > 0.5)
 
+        // 국소 탐색 (전역 탐색 성공 또는 초기 위치 추정시 수행)
         if(relocate_success_flag)
         {
             first_relocation_success = true;
@@ -285,7 +344,7 @@ void FastLioLocalizationScQn::matchingTimerFunc(const ros::TimerEvent &event)
             //matched_pairs_xyz_.push_back({corrected_odoms_.points[last_keyframe_copy.idx_], raw_odoms_.points[last_keyframe_copy.idx_]}); // for vis
             // map_match_pub_.publish(getMatchMarker(matched_pairs_xyz_));
         }
-        
+    // 정합이 유효하지 않은 경우 (누적 40회시, 플래그 초기화)
     }else{
         if(count_failure >= 40){
             relocate_success_flag =false;

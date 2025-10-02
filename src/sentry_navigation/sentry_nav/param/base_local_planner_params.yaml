@@ -52,13 +52,12 @@ DWAPlannerROS:
   xy_goal_tolerance: 0.2 #default:0.1
   yaw_goal_tolerance: 0.2 #default:0.05
   # TODO : 재확인 필요
-  # latch_xy_goal_tolerance: false # false
   latch_xy_goal_tolerance: true # false
 
   # Forward simulation          Defaults
   use_dwa: true                 # true
   # sim_time: 3.0              # 1.7
-  sim_time: 1.0 # fix             # 1.7
+  sim_time: 2.0              # 1.7
   sim_granularity: 0.025       # 0.025
   angular_sim_granularity: 0.1 # 0.10 (1 degree = 0.017 rad)
   vx_samples: 15               # 3
@@ -68,22 +67,25 @@ DWAPlannerROS:
   # trajectory scoring
   # total_score = pdist_scale * path_distance + gdist_scale * goal_distance + occdist_scale * obstacle_cost
 
-  pdist_scale: 0.1 # fix
-  # pdist_scale: 100
   # TODO : 재확인 필요
-  gdist_scale: 0.2 # fix
-  # gdist_scale: 100
+  # pdist_scale: 0.1 # fix
+  path_distance_bias: 10.0
+  # gdist_scale: 0.2 # fix
+  goal_distance_bias: 50.0
 
 #   pdist_scale: 100
 #   gdist_scale: 0.4
   meter_scoring: true
 
   heading_lookahead: 0.325
-  heading_scoring: false
+  # 180도 반전 경로 이동 가능
+  heading_scoring: true
   heading_scoring_timestep: 0.8
 
-  occdist_scale: 1.5
-  # occdist_scale: 0.01
+  # TODO : 0.1~0.5
+  # 높을수록, 좁은 공간에서 방향 회전을 못함
+  # occdist_scale: 0.5
+  occdist_scale: 0.1
 
 ###############################################
 
@@ -101,40 +103,42 @@ DWAPlannerROS:
 
   acc_lim_y: 0.0 # fix               # 2.5
   
+  # TODO : 4.0 ~ 10.0
   # acc_lim_theta: 3.2            # 3.2
-  acc_lim_theta: 3.0 # fix
+  acc_lim_theta: 7.0
 
   # max_vel_trans: 8
   # max_vel_trans: 0.8 # fix
   max_vel_trans: 0.7
 
-  min_vel_trans: 0 # fix
+  # 0으로 설정하면 병진 속도 궤적에서 0과 회전 속도 0이 셀렉되서 제자리에서 머무르는 문제
+  # min_vel_trans: 0 # fix
+  min_vel_trans: 0.3
   
   # max_vel_x: 10.0
   # max_vel_x: 0.8 # fix
   max_vel_x: 0.7
 
   # TODO : -0.2 ~ 0.0
+  # -0.3으로 설정하면 180도 반전 경로에서 후진으로 돌아옴
   # min_vel_x: 0.2
   # min_vel_x: -0.2 # fix
-  # min_vel_x: -0.05
   min_vel_x: 0.0
 
   max_vel_y: 0 # fix
   min_vel_y: 0 # fix
 
   # max_vel_theta: 2.0
-  max_vel_theta: 0.5 # fix
+  max_vel_theta: 1.0
   
-  # min_vel_theta: 0.3
-  min_vel_theta: 0.2 # fix
+  min_vel_theta: 0.3
+  # min_vel_theta: 0.2 # fix
 
   # TODO : (확인) 적용되는 값 아닌 것 같음
   escape_vel: -0.1
 
-  # TODO : (확인) 적용되는 값 아닌 것 같음
+  # 회전 속도 궤적 (병진 속도 0일때)에서 최소 회전 속도
   min_in_place_vel_theta: 0.5
-  # min_in_place_vel_theta: 0.3
 
   # Other                       Defaults
   oscillation_reset_dist: 0.05  # 0.05

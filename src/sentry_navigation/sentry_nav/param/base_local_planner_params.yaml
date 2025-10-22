@@ -37,12 +37,8 @@ base_local_planner: "dwa_local_planner/DWAPlannerROS"
 
 controller_frequency: 10      # 20.0
 # TODO : 리커버리에서 다시 테스트 필요
-controller_patience:  2.0      # 15.0
-# controller_patience:  5.0      # 15.0
-
-###############################################
-
-# fix
+# controller_patience:  2.0      # 15.0 # 25.10.15
+controller_patience:  5.0      # 15.0
 
 DWAPlannerROS:
   odom_topic: odom
@@ -50,95 +46,110 @@ DWAPlannerROS:
 
   # Tolerances                  Defaults
   xy_goal_tolerance: 0.2 #default:0.1
+  # xy_goal_tolerance: 0.3 #default:0.1 # 25.10.20
   yaw_goal_tolerance: 0.2 #default:0.05
+  # yaw_goal_tolerance: 0.5 #default:0.05 # 25.10.20
   # TODO : 재확인 필요
-  latch_xy_goal_tolerance: true # false
+  # latch_xy_goal_tolerance: true # false
+  latch_xy_goal_tolerance: false # false
 
+  ##################################################################
   # Forward simulation          Defaults
   use_dwa: true                 # true
-  # sim_time: 3.0              # 1.7
-  sim_time: 2.0              # 1.7
+  sim_time: 3.0              # 1.7 # fix (가속도 6.0)
+  # sim_time: 2.0              # 1.7 # 25.10.17 (가속도 5.0)
   sim_granularity: 0.025       # 0.025
   angular_sim_granularity: 0.1 # 0.10 (1 degree = 0.017 rad)
+  # 다음 주기에 도달 가능한 속도 공간 내에서 후보 생성
+  # 후보(vx, vth) 개수 = vx_samples * vth_samples = 15 * 20 = 300
   vx_samples: 15               # 3
-  vy_samples: 1               # 10
+  vy_samples: 0               # 10
   vth_samples: 20               # 20
 
-  # trajectory scoring
-  # total_score = pdist_scale * path_distance + gdist_scale * goal_distance + occdist_scale * obstacle_cost
-
+  ##################################################################
   # TODO : 재확인 필요
   # pdist_scale: 0.1 # fix
-  path_distance_bias: 10.0
+  path_distance_bias: 10.0 # 25.10.15
   # gdist_scale: 0.2 # fix
-  goal_distance_bias: 50.0
-
-#   pdist_scale: 100
-#   gdist_scale: 0.4
+  goal_distance_bias: 50.0 # 25.10.15
+  
   meter_scoring: true
 
-  heading_lookahead: 0.325
+  ##################################################################
+  heading_lookahead: 0.325 # 25.10.15
+  # heading_lookahead: 0.2
   # 180도 반전 경로 이동 가능
   heading_scoring: true
   heading_scoring_timestep: 0.8
 
-  # TODO : 0.1~0.5
+  # TODO (장애물 회피 최적) : 0.1~0.5
+  # TODO (180도 반전 경로 최적) : 0.01~0.1
   # 높을수록, 좁은 공간에서 방향 회전을 못함
   # occdist_scale: 0.5
-  occdist_scale: 0.1
+  occdist_scale: 0.1 # fix
+  # occdist_scale: 0.01
 
-###############################################
-
- # fix
-
+  ##################################################################
+  # 이 값은 사용하지않는 것으로 보임. acc_lim_x와 동일하게 설정
   # TODO : 5.0 ~ 7.0
-  # acc_lim_trans: 10
-  # acc_lim_trans: 8.0 # fix
-  acc_lim_trans: 5.0
+  # acc_lim_trans: 10.0
+  acc_lim_trans: 6.0 # fix
+  # acc_lim_trans: 5.0 # 25.10.17
   
   # TODO : 5.0 ~ 7.0
   # acc_lim_x: 10.0               # 2.5
-  # acc_lim_x: 8.0 # fix               # 2.5
-  acc_lim_x: 5.0               # 2.5
+  acc_lim_x: 6.0 # fix
+  # acc_lim_x: 5.0 # 25.10.17
 
   acc_lim_y: 0.0 # fix               # 2.5
-  
-  # TODO : 4.0 ~ 10.0
+
   # acc_lim_theta: 3.2            # 3.2
-  acc_lim_theta: 7.0
+  acc_lim_theta: 5.0 # fix
+  # acc_lim_theta: 7.0 # 25.10.17
 
+  # 비홀로노믹 로봇에서는 max_vel_trans = max_vel_x
   # max_vel_trans: 8
-  # max_vel_trans: 0.8 # fix
-  max_vel_trans: 0.7
+  max_vel_trans: 1.5
+  # max_vel_trans: 0.7 # 25.10.17
 
-  # 0으로 설정하면 병진 속도 궤적에서 0과 회전 속도 0이 셀렉되서 제자리에서 머무르는 문제
-  # min_vel_trans: 0 # fix
-  min_vel_trans: 0.3
+  ##################################################################
+  # TODO : 이 값보다 크면 전진 궤적. 즉, (((유효한 이동량)))이 있는 값으로 설정.
+  # [min_vel_x, min_vel_trans] = [0.0, 0.15]는 제자리 회전 궤적 
+  # TODO : 0.15 ~
+  # min_vel_trans: 0.0
+  min_vel_trans: 0.15 # fix
+  # min_vel_trans: 0.3 # 25.10.17
   
   # max_vel_x: 10.0
-  # max_vel_x: 0.8 # fix
-  max_vel_x: 0.7
+  max_vel_x: 1.5
+  # max_vel_x: 0.7 # 25.10.17
 
-  # TODO : -0.2 ~ 0.0
   # -0.3으로 설정하면 180도 반전 경로에서 후진으로 돌아옴
+  # 0일때는, min_in_place_rotation_vel이 작아도 회전 하는데 문제 없음.
+  # 0.05일때는, min_in_place_rotation_vel가 작으면 180도 회전을 못함.
   # min_vel_x: 0.2
-  # min_vel_x: -0.2 # fix
-  min_vel_x: 0.0
+  min_vel_x: 0.0 # fix # 25.10.17
 
   max_vel_y: 0 # fix
   min_vel_y: 0 # fix
 
   # max_vel_theta: 2.0
-  max_vel_theta: 1.0
-  
-  min_vel_theta: 0.3
-  # min_vel_theta: 0.2 # fix
+  max_vel_theta: 0.5 # fix
+  # max_vel_theta: 1.0 # 25.10.17
 
-  # TODO : (확인) 적용되는 값 아닌 것 같음
+  # 0.15~0.3
+  # 각속도 0.15까지는 거의 유효하지않음. (속도량 거의 없다.)
+  # 0.3으로 설정해도 0.3 이하 값이 나온다. 그래서 더 낮은 값을 설정하면 장애물 회피를 잘 못함.
+  # min_vel_theta: 0.2
+  min_vel_theta: 0.3 # fix
+
+  # 딱히 적용되는 것 같지는 않음.
   escape_vel: -0.1
 
-  # 회전 속도 궤적 (병진 속도 0일때)에서 최소 회전 속도
-  min_in_place_vel_theta: 0.5
+  # 제자리 회전 궤적 (|vx| < min_vel_trans)에서 최소 회전 속도
+  # 즉, |vth| >= min_in_place_vel_theta
+  # min_in_place_vel_theta: 0.5
+  min_in_place_vel_theta: 0.3 # 25.10.17
 
   # Other                       Defaults
   oscillation_reset_dist: 0.05  # 0.05
@@ -152,5 +163,3 @@ DWAPlannerROS:
   publish_cost_grid_pc: true
   # global_frame_id: camera_init_2d
   global_frame_id: map
-
-###############################################

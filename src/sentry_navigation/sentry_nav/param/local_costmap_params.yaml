@@ -8,7 +8,10 @@ local_costmap:
   publish_frequency: 10 # fix #代价地图的发布频率
   transform_tolerance: 2 #等待坐标变换发布信息的超时时间
  
-  static_map: false  #不需要静态地图，可以提升导航效果
+  # 25.10.14
+  # static_map: false  #不需要静态地图，可以提升导航效果
+  static_map: true  #不需要静态地图，可以提升导航效果
+
   rolling_window: true #是否使用动态窗口，默认为false，在静态的全局地图中，地图不会变化
   width: 12 # 局部地图宽度 单位是 m
   height: 12 # 局部地图高度 单位是 m
@@ -17,11 +20,16 @@ local_costmap:
   #################################################################################
   
   plugins:
+  # - {name: static_layer,        type: "costmap_2d::StaticLayer"}
   - {name: obstacle_layer,      type: "costmap_2d::ObstacleLayer"}
   # - {name: voxel_layer,         type: "costmap_2d::VoxelLayer"}
   - {name: rgbd_obstacle_layer, type: "spatio_temporal_voxel_layer/SpatioTemporalVoxelLayer"}
   # - {name: lidar_obstacle_layer, type: "spatio_temporal_voxel_layer/SpatioTemporalVoxelLayer"}
   - {name: inflation_layer,     type: "costmap_2d::InflationLayer"}
+
+  # 25.10.14
+  static_layer:
+    enabled: true
 
   obstacle_layer:
     enabled: true
@@ -96,5 +104,5 @@ local_costmap:
 
     #代价比例系数，越大则代价值越小
     # TODO : 재확인 필요
-    # cost_scaling_factor: 10.0 # fix
-    cost_scaling_factor: 0.01
+    cost_scaling_factor: 10.0 # fix
+    # cost_scaling_factor: 0.01 # 25.10.15

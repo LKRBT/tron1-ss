@@ -92,9 +92,12 @@ global_costmap:
 
     #膨胀半径，扩展在碰撞区域以外的代价区域，使得机器人规划路径避开障碍物
     # TODO : 0.1 ~ 0.2
-    inflation_radius: 0.15 # fix
+    # 25.10.15 [BDS]
+    # inflation_radius: 0.15 # fix # 25.10.15
+    inflation_radius: 0.2 # fix
 
     #代价比例系数，越大则代价值越小
     # TODO : 재확인 필요
     # cost_scaling_factor: 10.0 # fix # 25.09.30
-    cost_scaling_factor: 0.01 # fix
+    # cost_scaling_factor: 0.01 # fix # 25.10.15
+    cost_scaling_factor: 0.1 # fix

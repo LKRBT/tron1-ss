@@ -11,7 +11,9 @@ keyframe:
                                               # note: without Quatro, anyway scan-to-submap matching is performed, as that shows better performance
 
 quatro_nano_gicp_voxel_resolution: 0.3        # voxel resolution to use Quatro and Nano-GICP matching
-save_voxel_resolution: 0.1                    # voxel resolution to save map in .pcd format
+# 25.10.16 [BDS]
+# save_voxel_resolution: 0.1                    # voxel resolution to save map in .pcd format
+save_voxel_resolution: 0.05                    # voxel resolution to save map in .pcd format
 # 25.08.06 [featureless indoor environment]
 # scancontext_max_correspondence_distance: 35.0 # this is used for candidate trimming after ScanContext
 scancontext_max_correspondence_distance: 5.0 # this is used for candidate trimming after ScanContext

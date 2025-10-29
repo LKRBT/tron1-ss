@@ -1,5 +1,11 @@
 <launch>
 
+	<!-- 25.09.17 [BDS] -->
+	<arg name="result_file" default="/workspaces/lk_tron/catkin_ws/src/tron1-ss/src/Limx_mapping_and_localization/fast_lio_localization_sc_qn/result.bag" />
+	<arg name="map_file" default="/workspaces/lk_tron/catkin_ws/src/tron1-ss/src/Limx_mapping_and_localization/fast_lio_localization_sc_qn/limx_map.yaml" />
+	<!-- 25.10.20 [BDS] -->
+	<arg name="pcd_file" default="/workspaces/lk_tron/catkin_ws/src/tron1-ss/src/Limx_mapping_and_localization/fast_lio_localization_sc_qn/result.pcd" />
+
 	<arg name="rviz" default="true" />
 	<arg name="lidar" default="ouster" /> <!-- ouster, velodyne, livox -->
 	<arg name="odom_topic" default="/Odometry" />
@@ -10,7 +16,13 @@
 
 	<!-- run fast_lio_localization_sc_qn -->
 	<rosparam command="load" file="$(find fast_lio_localization_sc_qn)/config/config.yaml" />
-	<node pkg="fast_lio_localization_sc_qn" type="fast_lio_localization_sc_qn_node" name="fast_lio_localization_sc_qn_node" output="screen">
+
+	<!-- 25.09.17 [BDS] -->
+	<param name="basic/saved_map" value="$(arg result_file)" />
+
+	<!-- 25.09.17 [BDS] -->
+	<!-- <node pkg="fast_lio_localization_sc_qn" type="fast_lio_localization_sc_qn_node" name="fast_lio_localization_sc_qn_node" output="screen"> -->
+	<node pkg="fast_lio_localization_sc_qn" type="fast_lio_localization_sc_qn_node" name="fast_lio_localization_sc_qn_node" output="screen" clear_params="true">
 		<remap from="/Odometry" to="$(arg odom_topic)"/>
 		<remap from="/cloud_registered" to="$(arg lidar_topic)"/>
 	</node>
@@ -58,16 +70,26 @@
 	<arg name="2dmap" default="limx_map.yaml" />
 	<!-- 25.08.18 [BDS] -->
 	<!-- <node name = "map_server" pkg = "map_server" type = "map_server" args="$(find fast_lio_localization_sc_qn)/2d_nav_map_dashahe/limx_map.yaml /map:=prior_map"/> -->
-	<node name = "map_server" pkg = "map_server" type = "map_server" args="$(find fast_lio_localization_sc_qn)/limx_map.yaml /map:=prior_map"/>
+	<!-- 25.09.17 [BDS] -->
+	<node name="map_server" pkg="map_server" type="map_server" args="$(arg map_file)">
+		<remap from="/map" to="/prior_map"/>
+	</node>
+	
+	<!-- 25.10.20 -->
+	<node name="pcd_to_pointcloud" pkg="pcl_ros" type="pcd_to_pointcloud" args="$(arg pcd_file) 1.0">
+		<param name="frame_id" value="map"/>
+		<remap from="cloud_pcd" to="/corrected_map"/>
+	</node>
 
 	<!-- pointscloud2 to laserscans -->
 	<include file="$(find fast_lio_localization_sc_qn)/launch/PointsCloud2toLaserscan.launch">
+	<!-- <include file="$(find fast_lio_localization_sc_qn)/launch/PointsCloud2toLaserscan_bk.launch"> -->
 	</include>
 	<node pkg="tf2_ros" type="static_transform_publisher" name="tf_pub_1" args="0 0 0 0 0 0 body body_foot" />
 	<!-- 发布一个雷达初始位置camera_init到机器人足端初始位置body_init的静态映射 -->
 	<node pkg="tf2_ros" type="static_transform_publisher" name="tf_pub_2" args="0 0 0 0 0 0 map robot_foot_init" />
 	<!-- <node pkg="tf2_ros" type="static_transform_publisher" name="tf_pub_3" args="0 0 0 0 0 0 map fastlio_map" /> -->
 	<!-- 25.09.03 [BDS] -->
-	<node pkg="tf2_ros" type="static_transform_publisher" name="tf_pub_3" args="0 0 1.04 0 0 0 body body_real" />
+	<node pkg="tf2_ros" type="static_transform_publisher" name="tf_pub_3" args="0 0 1.03 0 0 0 body body_real" />
 
 </launch>

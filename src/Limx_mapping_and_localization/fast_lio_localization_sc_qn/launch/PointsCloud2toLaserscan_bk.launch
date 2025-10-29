@@ -41,14 +41,22 @@
         <rosparam>
             <!-- 25.08.29 [BDS] -->
             <!-- 수평 기준 프레임으로 설정 -->
+            <!-- body 프레임을 기준으로 -1.0~1.0에 들어오는 PC만 변환 -->
+            <!-- target_frame: body -->
             target_frame: body
 
             transform_tolerance: 0.1
 
             <!-- min_height: -0.2 -->
-            min_height: -1.0
+            <!-- min_height: -1.0 -->
+            <!-- min_height: 0.0 -->
             <!-- max_height: -0.1 -->
-            max_height: 1.0
+            <!-- max_height: 1.0 -->
+            <!-- max_height: 0.1 -->
+
+            min_height: -0.8
+            max_height: -0.7
+            <!-- max_height: -0.6 -->
 
             <!-- 수평 FOV : 87° (43.5° = 0.76rad)-->
             angle_min: -0.76
@@ -60,8 +68,11 @@
 
             <!-- 0.3 ~ 3m -->
             <!-- range_min: 0.5 -->
-            range_min: 0.7
-            range_max: 3.0
+            <!-- range_min: 0.3 -->
+            range_min: 0.6
+            <!-- range_min: 0.7 -->
+            <!-- range_max: 3.0 -->
+            range_max: 2.5
 
             use_inf: true
             inf_epsilon: 1.0

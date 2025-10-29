@@ -7,12 +7,18 @@
             transform_tolerance: 0.01
             <!-- 25.08.20 [BDS] -->
             <!-- min_height: -0.2  -->
+            <!-- 25.10.14 [BDS] -->
             min_height: -1.0
-            
+            <!-- min_height: -0.5 -->
+            <!-- -0.5정도로 줄여보기 -->
+            <!-- 장애물 높이 보완 생각하면서 줄여야함... -->
+
             <!-- 25.08.20 [BDS] -->
             <!-- max_height: 1.5 -->
             <!-- max_height: 1.2 -->
-            max_height: 1.0
+            <!-- 25.10.14 [BDS] -->
+            <!-- max_height: 1.0 -->
+            max_height: 0.5
 
             angle_min: -3.14159 # -M_PI/2
             angle_max: 3.14159 # M_PI/2

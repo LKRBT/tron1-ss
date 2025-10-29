@@ -78,7 +78,8 @@ FastLioLocalizationScQn::FastLioLocalizationScQn(const ros::NodeHandle &n_privat
     sub_odom_pcd_sync_ = std::make_shared<message_filters::Synchronizer<odom_pcd_sync_pol>>(odom_pcd_sync_pol(10), *sub_odom_, *sub_pcd_);
     sub_odom_pcd_sync_->registerCallback(boost::bind(&FastLioLocalizationScQn::odomPcdCallback, this, _1, _2));
     // 25.09.19 [initialpose]
-    sub_initial_pose_ = nh_.subscribe("/initialpose", 1, &FastLioLocalizationScQn::initialPoseCallback, this);
+    sub_initial_pose_cov_ = nh_.subscribe("/initialpose", 1, &FastLioLocalizationScQn::initialPoseCovCallback, this);
+    sub_initial_pose_ = nh_.subscribe("/initial_pose", 1, &FastLioLocalizationScQn::initialPoseCallback, this);
     // Timers at the end
     match_timer_ = nh_.createTimer(ros::Duration(1 / map_match_hz), &FastLioLocalizationScQn::matchingTimerFunc, this);
     pub_ = nh_.advertise<sensor_msgs::PointCloud2>("/livox/lidar_filter1", 1); 
@@ -147,11 +148,11 @@ void FastLioLocalizationScQn::odomPcdCallback(const nav_msgs::OdometryConstPtr &
         auto msg = pclToPclRos(transformPcd(*cloud_ptr, transform_base_pose), "body");
         msg.header.stamp = odom_msg->header.stamp;
         msg.header.frame_id ="body";
-        // TODO : 정확하게 체크
+        // TODO : 정확하게 체크 (주석만 갱신) 로컬에서 빠르게 사용하도록 바디만 역전해서 pcd 출력
         pub_.publish(msg);
     }
     
-    // TODO : 정확하게 체크
+    // TODO : 정확하게 체크 (주석만 갱신) map 기반으로 pcd 출력
     // pub current scan in corrected pose frame
     corrected_current_pcd_pub_.publish(pclToPclRos(transformPcd(current_frame.pcd_, transform_base_pose * current_frame.pose_corrected_eig_), map_frame_));
 
@@ -193,11 +194,9 @@ void FastLioLocalizationScQn::odomPcdCallback(const nav_msgs::OdometryConstPtr &
     return;
 }
 
-// RViz 초기자세를 받아 초기 보정변환(last_corrected_TF_) 설정
-// /initialpose(=map 기준)와 현재 odom 기준 포즈를 이용해 last_corrected_TF_를 계산한다.
-void FastLioLocalizationScQn::initialPoseCallback(const geometry_msgs::PoseWithCovarianceStampedConstPtr& msg)
+// PoseWithCovarianceStampedConstPtr
+void FastLioLocalizationScQn::initialPoseCovCallback(const geometry_msgs::PoseWithCovarianceStampedConstPtr& msg)
 {
-    // 1) map -> body (temp_pose_corrected_eig_)
     Eigen::Matrix4d map_T_body = Eigen::Matrix4d::Identity();
     Eigen::Quaterniond q(msg->pose.pose.orientation.w,
                          msg->pose.pose.orientation.x,
@@ -207,7 +206,45 @@ void FastLioLocalizationScQn::initialPoseCallback(const geometry_msgs::PoseWithC
     map_T_body.block<3,3>(0,0) = R;
     map_T_body(0,3) = msg->pose.pose.position.x;
     map_T_body(1,3) = msg->pose.pose.position.y;
-    // map_T_body(2,3) = msg->pose.pose.position.z;
+    map_T_body(2,3) = 0;
+
+    Eigen::Matrix4d map_T_body1 = transform_base_pose.inverse() * map_T_body * transform_base_pose;
+
+    PosePcd latest;
+    {
+        std::lock_guard<std::mutex> lock(keyframes_mutex_);
+        latest = last_keyframe_;
+    }
+    Eigen::Matrix4d odom_T_body1 = latest.pose_eig_; // odom 기준
+
+    last_corrected_TF_ = map_T_body1 * odom_T_body1.inverse();
+
+    relocate_success_flag = true;
+    first_relocation_success = true;
+
+    // ROS_WARN("[InitPose] last_corrected_TF_ is set from /initialpose, local-tracking will start.");
+}
+
+// RViz 초기자세를 받아 초기 보정변환(last_corrected_TF_) 설정
+// /initialpose(=map 기준)와 현재 odom 기준 포즈를 이용해 last_corrected_TF_를 계산한다.
+// void FastLioLocalizationScQn::initialPoseCallback(const geometry_msgs::PoseWithCovarianceStampedConstPtr& msg)
+void FastLioLocalizationScQn::initialPoseCallback(const geometry_msgs::PoseStampedConstPtr& msg)
+{
+    // covarince는 자료형이 pose.pose.orientation.w
+    // posestamped는 자료형이 pose.orientation.w
+
+    // TODO : 찍어서 x, y 값 0.0인지 확인해보기
+    // 1) map -> body (temp_pose_corrected_eig_)
+    Eigen::Matrix4d map_T_body = Eigen::Matrix4d::Identity();
+    Eigen::Quaterniond q(msg->pose.orientation.w,
+                         msg->pose.orientation.x,
+                         msg->pose.orientation.y,
+                         msg->pose.orientation.z);
+    Eigen::Matrix3d R = q.normalized().toRotationMatrix();
+    map_T_body.block<3,3>(0,0) = R;
+    map_T_body(0,3) = msg->pose.position.x;
+    map_T_body(1,3) = msg->pose.position.y;
+    // map_T_body(2,3) = msg->pose.position.z;
     map_T_body(2,3) = 0;
 
     // 2) map -> body1 (current_frame.pose_corrected_eig_)
@@ -229,7 +266,8 @@ void FastLioLocalizationScQn::initialPoseCallback(const geometry_msgs::PoseWithC
     relocate_success_flag = true;
     first_relocation_success = true;
 
-    ROS_WARN("[InitPose] last_corrected_TF_ is set from /initialpose, local-tracking will start.");
+    // ROS_WARN("[InitPose] last_corrected_TF_ is set from /initialpose, local-tracking will start.");
+    ROS_WARN("[InitPose] last_corrected_TF_ is set from /initial_pose, local-tracking will start.");
 }
 
 void FastLioLocalizationScQn::matchingTimerFunc(const ros::TimerEvent &event)
@@ -274,7 +312,8 @@ void FastLioLocalizationScQn::matchingTimerFunc(const ros::TimerEvent &event)
                                                    closest_keyframe_idx);
     // [Submap-Metric based Localization]
     // Submap-Metric 정합으로 유클리디언 거리 최소화 국소 탐색 방식
-    // 현재 keyframe과 submap keyframe 중에서 최소 거리 keyframe과 정합
+    // fast-lio-sam-sc-qn SLAM 알고리즘에서 생성된 result.bag 파일을 활용하여 서브맵 keyframe으로 활용
+    // 현재 keyframe과 서브맵 keyframe 중에서 최소 거리 keyframe과 정합
     }else{
         
         pcl::PointXYZI search_pt;

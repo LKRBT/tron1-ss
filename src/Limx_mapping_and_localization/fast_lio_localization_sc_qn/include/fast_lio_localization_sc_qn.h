@@ -84,6 +84,7 @@ private:
     ros::Publisher debug_src_pub_, debug_dst_pub_, debug_coarse_aligned_pub_, debug_fine_aligned_pub_;
     // 25.09.19 [initialpose]
     ros::Subscriber sub_initial_pose_;
+    ros::Subscriber sub_initial_pose_cov_;
     ros::Timer match_timer_;
     // odom, pcd sync subscriber
     std::shared_ptr<message_filters::Synchronizer<odom_pcd_sync_pol>> sub_odom_pcd_sync_ = nullptr;
@@ -95,7 +96,18 @@ private:
     Eigen::Matrix4d transform_base_pose;
 public:
     explicit FastLioLocalizationScQn(const ros::NodeHandle &n_private);
-    ~FastLioLocalizationScQn() {};
+    ~FastLioLocalizationScQn() {
+        // TODO : 향후 안전 종료 코드로 수정
+        // 25.09.22 [initialpose - rosnode kill]
+        // RViz initialpose subscriber는 ros::Subscriber → shutdown() 가능
+        sub_initial_pose_.shutdown();
+        // sub_odom_pcd_sync_.shutdown();
+        
+        // 실제 ROS Subscriber 2개 종료
+        if (sub_odom_) sub_odom_->unsubscribe();
+        if (sub_pcd_)  sub_pcd_->unsubscribe();
+        ROS_INFO("FastLioLocalizationScQn shutdown cleanly");
+    };
 
     //  void cloudCallback(const sensor_msgs::PointCloud2ConstPtr& input_cloud) {
     //     // 将ROS点云转换为PCL点云
@@ -130,7 +142,8 @@ private:
     // cb
     void odomPcdCallback(const nav_msgs::OdometryConstPtr &odom_msg, const sensor_msgs::PointCloud2ConstPtr &pcd_msg);
     // 25.09.19 [initialpose]
-    void initialPoseCallback(const geometry_msgs::PoseWithCovarianceStampedConstPtr& msg);
+    void initialPoseCovCallback(const geometry_msgs::PoseWithCovarianceStampedConstPtr& msg);
+    void initialPoseCallback(const geometry_msgs::PoseStampedConstPtr& msg);
     void matchingTimerFunc(const ros::TimerEvent &event);
 
     pcl::PointCloud<pcl::PointXYZI>::Ptr pose_cloud;

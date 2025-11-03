@@ -1,7 +1,8 @@
 <!-- -->
 <launch>
 <!-- <arg name="run_dir"      default="/mnt/ssd512/prod_maps/rbt-002_20250923_175352"/> -->
-<arg name="run_dir"      default="/mnt/ssd512/slam_datasets/20251024_151523"/>
+<!-- <arg name="run_dir"      default="/mnt/ssd512/slam_datasets/20251024_151523"/> -->
+<arg name="run_dir"      default="/mnt/ssd512/prod_maps/rbt-002_20251029_160312"/>
 
 <node pkg="pcd2pgm" name="pcd2pgm" type="pcd2pgm" output="screen">
 <!-- 存放pcd文件的路径-->
@@ -11,31 +12,32 @@
 <!-- 选取的范围　最小的高度-->
 
 <!-- <param name="thre_z_min" value= "-0.6" /> -->
+<param name="thre_z_min" value= "-0.1" />
 <!-- 25.10.16 [BDS]-->
 <!-- <param name="thre_z_min" value= "0.3" /> -->
 <!-- -1.0 ~ -0.5 -->
-<param name="thre_z_min" value= "-0.5" />
+<!-- <param name="thre_z_min" value= "-0.5" /> -->
 
 <!-- 选取的范围　最大的高度-->
-<!-- <param name="thre_z_max" value= "1.5" /> -->
+<param name="thre_z_max" value= "1.5" /> <!-- max 천장 필터링 --> 
 <!-- 25.10.16 [BDS] -->
 <!-- <param name="thre_z_max" value= "1.2" /> -->
 <!-- 0.0 ~ 0.5 -->
-<param name="thre_z_max" value= "0.3" /> <!-- max 천장 필터링 --> 
+<!-- <param name="thre_z_max" value= "0.3" /> -->
 
 <!-- 选取高度范围内的，１选取高度范围外的-->
 <param name="flag_pass_through" value= "0" />
 <!-- 半径滤波的半径-->
-<!-- <param name="thre_radius" value= "0.5" /> -->
+<param name="thre_radius" value= "0.5" /> <!-- max 동적 장애물 필터링 --> 
 <!-- 25.10.16 [BDS] -->
 <!-- <param name="thre_radius" value= "0.2" /> -->
 <!-- 0.2 ~ 0.4 --> 
-<param name="thre_radius" value= "0.3" /> <!-- max 동적 장애물 필터링 --> 
+<!-- <param name="thre_radius" value= "0.3" /> -->
 
 <!-- 半径滤波的要求点数个数-->
-<!-- <param name="thres_point_count" value= "10" /> -->
+<param name="thres_point_count" value= "10" />
 <!-- 5 ~ 10 -->
-<param name="thres_point_count" value= "5" />
+<!-- <param name="thres_point_count" value= "5" /> -->
 <!-- 存储的栅格map的分辨率-->
 <param name="map_resolution" value= "0.05" />
 <!-- 转换后发布的二维地图的topic，默认使用map即可，可使用map_server保存-->

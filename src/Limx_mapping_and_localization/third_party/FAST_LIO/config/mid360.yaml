@@ -37,8 +37,8 @@ pcd_save:
     interval: -1                 # how many LiDAR frames saved in each pcd file; 
                                  # -1 : all frames will be saved in ONE pcd file, may lead to memory crash when having too much frames.
 # 25.08.07 [라이다 상하 반전]
-# transform_point_pose_to_biped_body : false
-transform_point_pose_to_biped_body : true
+transform_point_pose_to_biped_body : false
+# transform_point_pose_to_biped_body : true
 
 point_filter_num: 2
 # point_filter_num: 3

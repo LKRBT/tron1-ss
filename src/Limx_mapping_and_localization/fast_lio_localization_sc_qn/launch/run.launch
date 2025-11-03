@@ -90,6 +90,8 @@
 	<node pkg="tf2_ros" type="static_transform_publisher" name="tf_pub_2" args="0 0 0 0 0 0 map robot_foot_init" />
 	<!-- <node pkg="tf2_ros" type="static_transform_publisher" name="tf_pub_3" args="0 0 0 0 0 0 map fastlio_map" /> -->
 	<!-- 25.09.03 [BDS] -->
-	<node pkg="tf2_ros" type="static_transform_publisher" name="tf_pub_3" args="0 0 1.03 0 0 0 body body_real" />
+	<!-- check -->
+	<!-- <node pkg="tf2_ros" type="static_transform_publisher" name="tf_pub_3" args="0 0 1.03 0 0 0 body body_real" /> -->
+	<node pkg="tf2_ros" type="static_transform_publisher" name="tf_pub_3" args="0 0 0.94 0 0 0 body body_real" />
 
 </launch>
